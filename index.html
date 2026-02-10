@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ClearLens — Trust & Transparency Dashboard</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1.5rem;
+    }
+
+    header h1 { margin: 0; }
+
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 2rem 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    h2 { margin-top: 0; }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      margin-top: .25rem;
+      padding: .6rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5f5;
+    }
+
+    button {
+      margin-top: 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: .7rem 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .report {
+      border-bottom: 1px solid #e5e7eb;
+      padding: .75rem 0;
+    }
+
+    .score {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>ClearLens</h1>
+  <p>Trust & Transparency Dashboard</p>
+</header>
+
+<main>
+  <section class="grid">
+
+    <div class="card">
+      <h2>Submit Experience</h2>
+      <form id="reportForm">
+        <label>Provider / Brand</label>
+        <input required id="provider" />
+
+        <label>Outcome</label>
+        <select id="outcome">
+          <option value="positive">Improved</option>
+          <option value="neutral">No Change</option>
+          <option value="negative">Negative</option>
+        </select>
+
+        <label>Details</label>
+        <textarea id="details"></textarea>
+
+        <button type="submit">Submit Report</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Trust Score</h2>
+      <div class="score" id="trustScore">—</div>
+      <p>Based on reported outcomes and consistency.</p>
+    </div>
+
+  </section>
+
+  <section class="card" style="margin-top:2rem">
+    <h2>Community Reports</h2>
+    <div id="reports"></div>
+  </section>
+
+  <section class="card" style="margin-top:2rem">
+    <h2>Ethics & Transparency</h2>
+    <p>
+      ClearLens uses a simple, explainable scoring system. Reports are user-submitted and not medical advice.
+      Scores reward consistency and transparency, not popularity. Bias and false claims are actively discouraged.
+    </p>
+  </section>
+</main>
+
+<footer>
+  Built by Shyaka Kalisa · Portfolio Project
+</footer>
+
+<script>
+  const form = document.getElementById('reportForm');
+  const reportsDiv = document.getElementById('reports');
+  const scoreDiv = document.getElementById('trustScore');
+
+  let reports = JSON.parse(localStorage.getItem('reports')) || [];
+
+  function render() {
+    reportsDiv.innerHTML = '';
+
+    let score = 0;
+
+    reports.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'report';
+      div.innerHTML = `<strong>${r.provider}</strong> — ${r.outcome}<br>${r.details}`;
+      reportsDiv.appendChild(div);
+
+      if (r.outcome === 'positive') score += 2;
+      if (r.outcome === 'neutral') score += 1;
+    });
+
+    scoreDiv.textContent = reports.length ? Math.round((score / (reports.length * 2)) * 100) + '%' : '—';
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+
+    reports.push({
+      provider: provider.value,
+      outcome: outcome.value,
+      details: details.value
+    });
+
+    localStorage.setItem('reports', JSON.stringify(reports));
+    form.reset();
+    render();
+  });
+
+  render();
+</script>
+
+</body>
+</html>
